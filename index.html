@@ -6,9 +6,11 @@
     <title>Struk Pembayaran - Portrait 80mm</title>
     <style>
         :root {
-            --paper-width: 80mm;
-            --content-width: 74mm; /* inner content, leave small margin */
+            --paper-width: 58mm;             /* target physical width */
+            --content-width: 48mm;           /* safe printable width for 58mm printers */
             --mono: "Courier New", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            --screen-font: Tahoma, "Segoe UI", Arial, sans-serif;
+            --print-font: Tahoma, Arial, Verdana, sans-serif;
         }
 
         html, body {
@@ -17,7 +19,7 @@
 
         body {
             margin: 0;
-            font-family: var(--mono);
+            font-family: var(--screen-font);
             background: #f5f6fa;
             color: #111;
         }
@@ -50,6 +52,7 @@
             border: 1px solid #d9d9d9;
             box-shadow: 0 1px 2px rgba(0,0,0,0.06);
             padding: 6mm 4mm;
+            margin: 0 auto; /* center for screen preview */
         }
 
         .center { text-align: center; }
@@ -153,7 +156,7 @@
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             padding: 10px 12px;
-            font-family: var(--mono);
+            font-family: var(--screen-font);
             font-size: 13px;
             background: #fff;
         }
@@ -162,23 +165,24 @@
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 
         @media print {
-            body { background: #fff; }
+            body { background: #fff; font-family: var(--print-font); -webkit-font-smoothing: none; }
             .wrap { display: block; padding: 0; }
             #editor { display: none; }
             #receipt-holder { display: block; }
             #receipt {
-                width: var(--paper-width);
+                width: var(--content-width); /* use safe width to avoid clipping */
                 border: none;
                 box-shadow: none;
-                padding: 4mm 3mm;
+                padding: 3mm 2mm; /* tighter padding for smaller roll */
+                margin: 0 auto;    /* ensure centered on page */
             }
             .actions { display: none; }
             .footer-note { font-size: 8px; }
         }
 
         @page {
-            size: var(--paper-width) auto;
-            margin: 3mm 2mm;
+            size: var(--paper-width) 210mm; /* 58 x 210 mm */
+            margin: 0; /* most thermal printers ignore margins; set to zero to avoid cut */
         }
     </style>
 </head>
