@@ -201,9 +201,9 @@
                 <div class="hr"></div>
 
                 <div class="mt6">
-                    <div>ID / <span id="pId">D0000000000000000</span> | <span id="pTanggal"></span></div>
-                    <div>Tanggal <span id="pTahun">2025</span>, <span id="pTanggalTime"></span></div>
-                    <div>Keterangan:</div>
+                    <div>ID / <span id="pId">D0000000000000000</span> | <span id="pTanggal"></span> <span id="pTahun">2025</span></div>
+                    <div>Waktu <span id="pTanggalTime"></span> WIB </div>
+                    <div>Keterangan: </div>
                     <div style="margin-left: 8px;"><span id="pKeterangan">PBB/TLR/0000</span></div>
                 </div>
 
@@ -282,7 +282,7 @@
                 </div>
                 <div class="col-span-2">
                     <label for="keterangan">Keterangan</label>
-                    <input type="text" id="keterangan" value="PBB/TLR/33190100020107004102025" />
+                    <input type="text" id="keterangan" value="LUNAS" />
                 </div>
                 <div>
                     <label for="nop">NOP</label>
@@ -348,6 +348,7 @@
                 pTanggal: document.getElementById('pTanggal'),
                 pTanggalTime: document.getElementById('pTanggalTime'),
                 pKeterangan: document.getElementById('pKeterangan'),
+                pKeteranganStatus: document.getElementById('pKeteranganStatus'),
                 pNop: document.getElementById('pNop'),
                 pTahun: document.getElementById('pTahun'),
                 pNama: document.getElementById('pNama'),
@@ -451,14 +452,14 @@
                     try {
                         const t = dom.tanggal.value ? new Date(dom.tanggal.value) : new Date();
                         if (!isNaN(t.getTime())) {
-                            // Format: "22 Agu" for date
-                            const dateOpts = { month:'short', day:'2-digit' };
+                            // Format: full month name (e.g., 22 Agustus)
+                            const dateOpts = { month:'long', day:'2-digit' };
                             dom.pTanggal.textContent = t.toLocaleString('id-ID', dateOpts).replace('.', '');
-                            
-                            // Format: "0210" for time (HHMM)
+
+                            // Format time HH:MM with colon
                             const hours = String(t.getHours()).padStart(2, '0');
                             const minutes = String(t.getMinutes()).padStart(2, '0');
-                            dom.pTanggalTime.textContent = hours + minutes;
+                            dom.pTanggalTime.textContent = hours + ':' + minutes;
                         } else {
                             dom.pTanggal.textContent = 'Invalid Date';
                             dom.pTanggalTime.textContent = '';
@@ -469,6 +470,8 @@
                         dom.pTanggalTime.textContent = '';
                     }
 
+                    // Set status fixed to LUNAS and show entered number below
+                    if (dom.pKeteranganStatus) dom.pKeteranganStatus.textContent = 'LUNAS';
                     dom.pKeterangan.textContent = dom.keterangan.value || '';
                     dom.pNop.textContent = dom.nop.value || '';
                     dom.pTahun.textContent = dom.tahun.value || '';
