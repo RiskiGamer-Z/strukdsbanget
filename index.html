@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Struk Pembayaran - Portrait 80mm</title>
+    <style>
+        :root {
+            --paper-width: 80mm;
+            --content-width: 74mm; /* inner content, leave small margin */
+            --mono: "Courier New", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--mono);
+            background: #f5f6fa;
+            color: #111;
+        }
+
+        .wrap {
+            display: grid;
+            grid-template-columns: 1fr minmax(320px, 420px);
+            gap: 16px;
+            padding: 16px;
+            box-sizing: border-box;
+            align-items: start;
+        }
+
+        #editor {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+
+        #receipt-holder {
+            display: flex;
+            justify-content: center;
+        }
+
+        #receipt {
+            width: var(--content-width);
+            background: #ffffff;
+            border: 1px solid #d9d9d9;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+            padding: 8mm 3mm;
+        }
+
+        .center { text-align: center; }
+        .right  { text-align: right; }
+        .small  { font-size: 11px; }
+        .xs     { font-size: 10px; }
+        .bold   { font-weight: 700; }
+        .mt4    { margin-top: 4px; }
+        .mt8    { margin-top: 8px; }
+        .mt12   { margin-top: 12px; }
+        .mt16   { margin-top: 16px; }
+
+        .logo-line {
+            display: grid;
+            grid-template-columns: 18mm 1fr;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo-line img {
+            width: 16mm;
+            height: 16mm;
+            object-fit: contain;
+        }
+
+        .title {
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        .hr {
+            border-top: 1px dashed #333;
+            margin: 6px 0;
+        }
+
+        table.grid {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 12px;
+        }
+
+        table.grid td, table.grid th {
+            border: 1px solid #111;
+            padding: 2px 4px;
+            vertical-align: top;
+            page-break-inside: avoid;
+        }
+
+        table.meta {
+            width: 100%;
+            font-size: 12px;
+            border-collapse: collapse;
+        }
+        table.meta td {
+            padding: 1px 0;
+        }
+
+        .footer-note {
+            font-size: 10px;
+            margin-top: 8px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        button, .button {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #111827;
+            color: #fff;
+            cursor: pointer;
+            font-family: var(--mono);
+            font-size: 13px;
+        }
+        button.secondary {
+            background: #fff;
+            color: #111;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 12px;
+        }
+        .form-grid .col-span-2 { grid-column: span 2; }
+        label { font-size: 12px; color: #374151; display: block; margin-bottom: 4px; }
+        input[type="text"], input[type="number"], input[type="datetime-local"], textarea {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: var(--mono);
+            font-size: 13px;
+            background: #fff;
+        }
+        textarea { resize: vertical; min-height: 56px; }
+
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+        @media print {
+            body { background: #fff; }
+            .wrap { display: block; padding: 0; }
+            #editor { display: none; }
+            #receipt-holder { display: block; }
+            #receipt {
+                width: var(--paper-width);
+                border: none;
+                box-shadow: none;
+                padding: 5mm 3mm;
+            }
+            .actions { display: none; }
+            .footer-note { font-size: 9px; }
+        }
+
+        @page {
+            size: var(--paper-width) auto;
+            margin: 4mm 3mm;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <section id="receipt-holder">
+            <article id="receipt" aria-label="Preview Struk">
+                <div class="logo-line">
+                    <img id="previewLogo" alt="Logo" />
+                    <div>
+                        <div class="center bold"> <span id="pInstansi1">PEMERINTAH DESA BANGET</span> </div>
+                        <div class="center xs"> <span id="pInstansi2">BUMDES AMERTA BANGET</span> </div>
+                    </div>
+                </div>
+
+                <div class="hr"></div>
+                <div class="center title bold"> <span id="pTitle">INFO PEMBAYARAN PBB</span> </div>
+                <div class="hr"></div>
+
+                <table class="meta mt8">
+                    <tr>
+                        <td>ID / Tanggal</td>
+                        <td class="right"><span id="pId">D0000000000000000</span> | <span id="pTanggal"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Keterangan</td>
+                        <td class="right"><span id="pKeterangan">PBB/TLR/0000</span></td>
+                    </tr>
+                </table>
+
+                <table class="grid mt8">
+                    <tbody>
+                        <tr>
+                            <td style="width:32%">NOP</td>
+                            <td><span id="pNop">000000000000000000</span></td>
+                        </tr>
+                        <tr>
+                            <td>Tahun</td>
+                            <td><span id="pTahun">2025</span></td>
+                        </tr>
+                        <tr>
+                            <td>Nama</td>
+                            <td><span id="pNama">Nama Wajib Pajak</span></td>
+                        </tr>
+                        <tr>
+                            <td>Alamat</td>
+                            <td><span id="pAlamat">Alamat</span></td>
+                        </tr>
+                        <tr>
+                            <td>Nominal</td>
+                            <td class="right">Rp <span id="pNominal">0</span></td>
+                        </tr>
+                        <tr>
+                            <td>Biaya Admin</td>
+                            <td class="right">Rp <span id="pAdmin">0</span></td>
+                        </tr>
+                        <tr>
+                            <td class="bold">Jumlah Total</td>
+                            <td class="right bold">Rp <span id="pTotal">0</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="mt8 xs">Terbilang: <span id="pTerbilang">Nol Rupiah</span></div>
+
+                <div class="footer-note mt16 center">
+                    <div id="pFooter">Simpan struk ini sebagai bukti pembayaran.</div>
+                </div>
+
+                <div class="actions mt16 center" aria-hidden="true">
+                    <button onclick="window.print()">Cetak (Ctrl/Cmd+P)</button>
+                    <button class="secondary" id="btnCopy" type="button">Salin Teks</button>
+                </div>
+            </article>
+        </section>
+
+        <section id="editor" aria-label="Form Isian">
+            <h3 style="margin:0 0 10px 0; font-family:var(--mono);">Isian Struk</h3>
+            <div class="form-grid">
+                <div class="col-span-2">
+                    <label for="logo">Logo (opsional)</label>
+                    <input type="file" id="logo" accept="image/*" />
+                </div>
+                <div>
+                    <label for="instansi1">Baris Instansi 1</label>
+                    <input type="text" id="instansi1" value="PEMERINTAH DESA BANGET" />
+                </div>
+                <div>
+                    <label for="instansi2">Baris Instansi 2</label>
+                    <input type="text" id="instansi2" value="BUMDES AMERTA BANGET" />
+                </div>
+                <div class="col-span-2">
+                    <label for="title">Judul</label>
+                    <input type="text" id="title" value="INFO PEMBAYARAN PBB" />
+                </div>
+                <div>
+                    <label for="idtrx">ID Transaksi</label>
+                    <input type="text" id="idtrx" value="D1751354824282857" />
+                </div>
+                <div>
+                    <label for="tanggal">Tanggal</label>
+                    <input type="datetime-local" id="tanggal" />
+                </div>
+                <div class="col-span-2">
+                    <label for="keterangan">Keterangan</label>
+                    <input type="text" id="keterangan" value="PBB/TLR/33190100020107004102025" />
+                </div>
+                <div>
+                    <label for="nop">NOP</label>
+                    <input type="text" id="nop" value="3319010002001000350" />
+                </div>
+                <div>
+                    <label for="tahun">Tahun</label>
+                    <input type="text" id="tahun" value="2025" />
+                </div>
+                <div>
+                    <label for="nama">Nama</label>
+                    <input type="text" id="nama" value="KAUR PEMBANGUNAN" />
+                </div>
+                <div>
+                    <label for="alamat">Alamat</label>
+                    <input type="text" id="alamat" value="DS BANGET - BANGET" />
+                </div>
+                <div>
+                    <label for="nominal">Nominal (Rp)</label>
+                    <input type="text" id="nominal" value="81652" />
+                </div>
+                <div>
+                    <label for="admin">Biaya Admin (Rp)</label>
+                    <input type="text" id="admin" value="3000" />
+                </div>
+                <div class="col-span-2">
+                    <label for="footer">Catatan kaki</label>
+                    <textarea id="footer">Simpan struk ini sebagai bukti pembayaran.</textarea>
+                </div>
+                <div class="col-span-2 actions">
+                    <button type="button" onclick="window.print()">Cetak</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const dom = {
+                // form inputs
+                logo: document.getElementById('logo'),
+                instansi1: document.getElementById('instansi1'),
+                instansi2: document.getElementById('instansi2'),
+                title: document.getElementById('title'),
+                idtrx: document.getElementById('idtrx'),
+                tanggal: document.getElementById('tanggal'),
+                keterangan: document.getElementById('keterangan'),
+                nop: document.getElementById('nop'),
+                tahun: document.getElementById('tahun'),
+                nama: document.getElementById('nama'),
+                alamat: document.getElementById('alamat'),
+                nominal: document.getElementById('nominal'),
+                admin: document.getElementById('admin'),
+                footer: document.getElementById('footer'),
+
+                // preview
+                pLogo: document.getElementById('previewLogo'),
+                pInstansi1: document.getElementById('pInstansi1'),
+                pInstansi2: document.getElementById('pInstansi2'),
+                pTitle: document.getElementById('pTitle'),
+                pId: document.getElementById('pId'),
+                pTanggal: document.getElementById('pTanggal'),
+                pKeterangan: document.getElementById('pKeterangan'),
+                pNop: document.getElementById('pNop'),
+                pTahun: document.getElementById('pTahun'),
+                pNama: document.getElementById('pNama'),
+                pAlamat: document.getElementById('pAlamat'),
+                pNominal: document.getElementById('pNominal'),
+                pAdmin: document.getElementById('pAdmin'),
+                pTotal: document.getElementById('pTotal'),
+                pTerbilang: document.getElementById('pTerbilang'),
+                pFooter: document.getElementById('pFooter'),
+                btnCopy: document.getElementById('btnCopy')
+            };
+
+            // Check if all elements exist
+            function validateElements() {
+                const requiredElements = [
+                    'instansi1', 'instansi2', 'title', 'idtrx', 'tanggal',
+                    'keterangan', 'nop', 'tahun', 'nama', 'alamat',
+                    'nominal', 'admin', 'footer'
+                ];
+                
+                const missingElements = requiredElements.filter(id => !document.getElementById(id));
+                if (missingElements.length > 0) {
+                    console.error('Missing elements:', missingElements);
+                    return false;
+                }
+                return true;
+            }
+
+            function setDefaultDate() {
+                try {
+                    const now = new Date();
+                    const local = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
+                    if (dom.tanggal) {
+                        dom.tanggal.value = local.toISOString().slice(0,16);
+                    }
+                } catch (error) {
+                    console.error('Error setting default date:', error);
+                }
+            }
+
+            function sanitizeNumber(input) {
+                try {
+                    if (typeof input === 'number') return input;
+                    if (!input) return 0;
+                    const digits = String(input).replace(/[^0-9]/g, '');
+                    return digits.length ? parseInt(digits, 10) : 0;
+                } catch (error) {
+                    console.error('Error sanitizing number:', error);
+                    return 0;
+                }
+            }
+
+            function formatIDR(num) {
+                try {
+                    const n = Number(num || 0);
+                    if (isNaN(n)) return '0';
+                    return n.toLocaleString('id-ID');
+                } catch (error) {
+                    console.error('Error formatting IDR:', error);
+                    return '0';
+                }
+            }
+
+            function numberToBahasa(n) {
+                try {
+                    n = Math.floor(Math.abs(n));
+                    if (n === 0) return 'Nol Rupiah';
+                    
+                    const angka = ['','Satu','Dua','Tiga','Empat','Lima','Enam','Tujuh','Delapan','Sembilan','Sepuluh','Sebelas'];
+                    
+                    function toWords(x){
+                        if (x < 12) return angka[x];
+                        if (x < 20) return toWords(x - 10) + ' Belas';
+                        if (x < 100) return toWords(Math.floor(x/10)) + ' Puluh' + (x % 10 ? ' ' + toWords(x % 10) : '');
+                        if (x < 200) return 'Seratus' + (x - 100 ? ' ' + toWords(x - 100) : '');
+                        if (x < 1000) return toWords(Math.floor(x/100)) + ' Ratus' + (x % 100 ? ' ' + toWords(x % 100) : '');
+                        if (x < 2000) return 'Seribu' + (x - 1000 ? ' ' + toWords(x - 1000) : '');
+                        if (x < 1000000) return toWords(Math.floor(x/1000)) + ' Ribu' + (x % 1000 ? ' ' + toWords(x % 1000) : '');
+                        if (x < 1000000000) return toWords(Math.floor(x/1000000)) + ' Juta' + (x % 1000000 ? ' ' + toWords(x % 1000000) : '');
+                        if (x < 1000000000000) return toWords(Math.floor(x/1000000000)) + ' Miliar' + (x % 1000000000 ? ' ' + toWords(x % 1000000000) : '');
+                        return toWords(Math.floor(x/1000000000000)) + ' Triliun' + (x % 1000000000000 ? ' ' + toWords(x % 1000000000000) : '');
+                    }
+                    
+                    return toWords(n) + ' Rupiah';
+                } catch (error) {
+                    console.error('Error converting to Bahasa:', error);
+                    return 'Nol Rupiah';
+                }
+            }
+
+            function updatePreview() {
+                try {
+                    if (!dom.pInstansi1 || !dom.instansi1) return;
+                    
+                    dom.pInstansi1.textContent = dom.instansi1.value || '';
+                    dom.pInstansi2.textContent = dom.instansi2.value || '';
+                    dom.pTitle.textContent = (dom.title.value || '').toUpperCase();
+                    dom.pId.textContent = dom.idtrx.value || '';
+
+                    // Tanggal pretty
+                    try {
+                        const t = dom.tanggal.value ? new Date(dom.tanggal.value) : new Date();
+                        if (!isNaN(t.getTime())) {
+                            const opts = { year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' };
+                            dom.pTanggal.textContent = t.toLocaleString('id-ID', opts).replace('.', '');
+                        } else {
+                            dom.pTanggal.textContent = 'Invalid Date';
+                        }
+                    } catch (dateError) {
+                        console.error('Error formatting date:', dateError);
+                        dom.pTanggal.textContent = 'Error';
+                    }
+
+                    dom.pKeterangan.textContent = dom.keterangan.value || '';
+                    dom.pNop.textContent = dom.nop.value || '';
+                    dom.pTahun.textContent = dom.tahun.value || '';
+                    dom.pNama.textContent = dom.nama.value || '';
+                    dom.pAlamat.textContent = dom.alamat.value || '';
+
+                    const nominal = sanitizeNumber(dom.nominal.value);
+                    const admin = sanitizeNumber(dom.admin.value);
+                    const total = nominal + admin;
+
+                    dom.pNominal.textContent = formatIDR(nominal);
+                    dom.pAdmin.textContent = formatIDR(admin);
+                    dom.pTotal.textContent = formatIDR(total);
+                    dom.pTerbilang.textContent = numberToBahasa(total);
+                    dom.pFooter.textContent = dom.footer.value || '';
+                } catch (error) {
+                    console.error('Error updating preview:', error);
+                }
+            }
+
+            function bindInputs() {
+                try {
+                    const inputs = [
+                        dom.instansi1, dom.instansi2, dom.title, dom.idtrx, dom.tanggal,
+                        dom.keterangan, dom.nop, dom.tahun, dom.nama, dom.alamat,
+                        dom.nominal, dom.admin, dom.footer
+                    ];
+                    
+                    inputs.forEach(el => {
+                        if (el) {
+                            el.addEventListener('input', updatePreview);
+                        }
+                    });
+
+                    if (dom.logo) {
+                        dom.logo.addEventListener('change', (e) => {
+                            try {
+                                const file = e.target.files && e.target.files[0];
+                                if (!file) { 
+                                    if (dom.pLogo) dom.pLogo.removeAttribute('src'); 
+                                    return; 
+                                }
+                                const reader = new FileReader();
+                                reader.onload = () => { 
+                                    if (dom.pLogo) dom.pLogo.src = reader.result; 
+                                };
+                                reader.onerror = () => console.error('Error reading file');
+                                reader.readAsDataURL(file);
+                            } catch (error) {
+                                console.error('Error handling logo:', error);
+                            }
+                        });
+                    }
+
+                    if (dom.btnCopy) {
+                        dom.btnCopy.addEventListener('click', () => {
+                            try {
+                                const receiptElement = document.getElementById('receipt');
+                                if (receiptElement) {
+                                    const text = receiptElement.innerText.replace(/\n{3,}/g, '\n\n');
+                                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                                        navigator.clipboard.writeText(text).then(() => {
+                                            dom.btnCopy.textContent = 'Disalin!';
+                                            setTimeout(() => dom.btnCopy.textContent = 'Salin Teks', 1000);
+                                        }).catch(err => {
+                                            console.error('Clipboard error:', err);
+                                            dom.btnCopy.textContent = 'Error!';
+                                            setTimeout(() => dom.btnCopy.textContent = 'Salin Teks', 1000);
+                                        });
+                                    } else {
+                                        // Fallback for older browsers
+                                        const textArea = document.createElement('textarea');
+                                        textArea.value = text;
+                                        document.body.appendChild(textArea);
+                                        textArea.select();
+                                        document.execCommand('copy');
+                                        document.body.removeChild(textArea);
+                                        dom.btnCopy.textContent = 'Disalin!';
+                                        setTimeout(() => dom.btnCopy.textContent = 'Salin Teks', 1000);
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error copying text:', error);
+                                dom.btnCopy.textContent = 'Error!';
+                                setTimeout(() => dom.btnCopy.textContent = 'Salin Teks', 1000);
+                            }
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error binding inputs:', error);
+                }
+            }
+
+            // Initialize only if all required elements exist
+            if (validateElements()) {
+                setDefaultDate();
+                bindInputs();
+                updatePreview();
+            } else {
+                console.error('Some required elements are missing. Check the console for details.');
+            }
+        });
+    </script>
+</body>
+</html>
+
+
