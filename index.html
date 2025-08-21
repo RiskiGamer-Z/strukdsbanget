@@ -49,35 +49,39 @@
             background: #ffffff;
             border: 1px solid #d9d9d9;
             box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-            padding: 8mm 3mm;
+            padding: 6mm 4mm;
         }
 
         .center { text-align: center; }
         .right  { text-align: right; }
+        .left   { text-align: left; }
         .small  { font-size: 11px; }
         .xs     { font-size: 10px; }
         .bold   { font-weight: 700; }
         .mt4    { margin-top: 4px; }
+        .mt6    { margin-top: 6px; }
         .mt8    { margin-top: 8px; }
         .mt12   { margin-top: 12px; }
         .mt16   { margin-top: 16px; }
 
         .logo-line {
-            display: grid;
-            grid-template-columns: 18mm 1fr;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            margin-bottom: 8px;
         }
 
         .logo-line img {
-            width: 16mm;
-            height: 16mm;
+            width: 14mm;
+            height: 14mm;
             object-fit: contain;
         }
 
         .title {
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 0.3px;
+            margin: 8px 0;
         }
 
         .hr {
@@ -88,28 +92,31 @@
         table.grid {
             border-collapse: collapse;
             width: 100%;
-            font-size: 12px;
+            font-size: 11px;
+            margin-top: 8px;
         }
 
         table.grid td, table.grid th {
             border: 1px solid #111;
-            padding: 2px 4px;
+            padding: 3px 4px;
             vertical-align: top;
             page-break-inside: avoid;
         }
 
         table.meta {
             width: 100%;
-            font-size: 12px;
+            font-size: 11px;
             border-collapse: collapse;
+            margin-top: 8px;
         }
         table.meta td {
-            padding: 1px 0;
+            padding: 2px 0;
+            border: none;
         }
 
         .footer-note {
-            font-size: 10px;
-            margin-top: 8px;
+            font-size: 9px;
+            margin-top: 12px;
         }
 
         .actions {
@@ -163,15 +170,15 @@
                 width: var(--paper-width);
                 border: none;
                 box-shadow: none;
-                padding: 5mm 3mm;
+                padding: 4mm 3mm;
             }
             .actions { display: none; }
-            .footer-note { font-size: 9px; }
+            .footer-note { font-size: 8px; }
         }
 
         @page {
             size: var(--paper-width) auto;
-            margin: 4mm 3mm;
+            margin: 3mm 2mm;
         }
     </style>
 </head>
@@ -181,28 +188,21 @@
             <article id="receipt" aria-label="Preview Struk">
                 <div class="logo-line">
                     <img id="previewLogo" alt="Logo" />
-                    <div>
-                        <div class="center bold"> <span id="pInstansi1">PEMERINTAH DESA BANGET</span> </div>
-                        <div class="center xs"> <span id="pInstansi2">BUMDES AMERTA BANGET</span> </div>
-                    </div>
+                    <div class="center bold"> <span id="pInstansi1">PEMERINTAH DESA BANGET</span> </div>
+                    <div class="center xs"> <span id="pInstansi2">BUMDES AMERTA BANGET</span> </div>
                 </div>
 
                 <div class="hr"></div>
                 <div class="center title bold"> <span id="pTitle">INFO PEMBAYARAN PBB</span> </div>
                 <div class="hr"></div>
 
-                <table class="meta mt8">
-                    <tr>
-                        <td>ID / Tanggal</td>
-                        <td class="right"><span id="pId">D0000000000000000</span> | <span id="pTanggal"></span></td>
-                    </tr>
-                    <tr>
-                        <td>Keterangan</td>
-                        <td class="right"><span id="pKeterangan">PBB/TLR/0000</span></td>
-                    </tr>
-                </table>
+                <div class="mt6">
+                    <div>ID / <span id="pId">D0000000000000000</span> | <span id="pTanggal"></span></div>
+                    <div>Tanggal <span id="pTahun">2025</span>, <span id="pTanggalTime"></span></div>
+                    <div>Keterangan <span id="pKeterangan">PBB/TLR/0000</span></div>
+                </div>
 
-                <table class="grid mt8">
+                <table class="grid">
                     <tbody>
                         <tr>
                             <td style="width:32%">NOP</td>
@@ -222,22 +222,22 @@
                         </tr>
                         <tr>
                             <td>Nominal</td>
-                            <td class="right">Rp <span id="pNominal">0</span></td>
+                            <td>Rp <span id="pNominal">0</span></td>
                         </tr>
                         <tr>
                             <td>Biaya Admin</td>
-                            <td class="right">Rp <span id="pAdmin">0</span></td>
+                            <td>Rp <span id="pAdmin">0</span></td>
                         </tr>
                         <tr>
                             <td class="bold">Jumlah Total</td>
-                            <td class="right bold">Rp <span id="pTotal">0</span></td>
+                            <td class="bold">Rp <span id="pTotal">0</span></td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div class="mt8 xs">Terbilang: <span id="pTerbilang">Nol Rupiah</span></div>
+                <div class="mt6 xs">Terbilang: <span id="pTerbilang">Nol Rupiah</span></div>
 
-                <div class="footer-note mt16 center">
+                <div class="footer-note center">
                     <div id="pFooter">Simpan struk ini sebagai bukti pembayaran.</div>
                 </div>
 
@@ -341,6 +341,7 @@
                 pTitle: document.getElementById('pTitle'),
                 pId: document.getElementById('pId'),
                 pTanggal: document.getElementById('pTanggal'),
+                pTanggalTime: document.getElementById('pTanggalTime'),
                 pKeterangan: document.getElementById('pKeterangan'),
                 pNop: document.getElementById('pNop'),
                 pTahun: document.getElementById('pTahun'),
@@ -445,14 +446,22 @@
                     try {
                         const t = dom.tanggal.value ? new Date(dom.tanggal.value) : new Date();
                         if (!isNaN(t.getTime())) {
-                            const opts = { year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' };
-                            dom.pTanggal.textContent = t.toLocaleString('id-ID', opts).replace('.', '');
+                            // Format: "22 Agu" for date
+                            const dateOpts = { month:'short', day:'2-digit' };
+                            dom.pTanggal.textContent = t.toLocaleString('id-ID', dateOpts).replace('.', '');
+                            
+                            // Format: "0210" for time (HHMM)
+                            const hours = String(t.getHours()).padStart(2, '0');
+                            const minutes = String(t.getMinutes()).padStart(2, '0');
+                            dom.pTanggalTime.textContent = hours + minutes;
                         } else {
                             dom.pTanggal.textContent = 'Invalid Date';
+                            dom.pTanggalTime.textContent = '';
                         }
                     } catch (dateError) {
                         console.error('Error formatting date:', dateError);
                         dom.pTanggal.textContent = 'Error';
+                        dom.pTanggalTime.textContent = '';
                     }
 
                     dom.pKeterangan.textContent = dom.keterangan.value || '';
